@@ -15,7 +15,7 @@
 %  change the parameters below.
 
 visibleSize = 8*8;   % number of input units 
-hiddenSize = 25;     % number of hidden units 
+hiddenSize = 100;     % number of hidden units 
 sparsityParam = 0.01;   % desired average activation of the hidden units.
                      % (This was denoted by the Greek alphabet rho, which looks like a lower-case "p",
 		     %  in the lecture notes). 
@@ -66,36 +66,36 @@ theta = initializeParameters(hiddenSize, visibleSize);
                                      sparsityParam, beta, patches);
 
 %%======================================================================
-%% STEP 3: Gradient Checking
-%
-% Hint: If you are debugging your code, performing gradient checking on smaller models 
-% and smaller training sets (e.g., using only 10 training examples and 1-2 hidden 
-% units) may speed things up.
-
-% First, lets make sure your numerical gradient computation is correct for a
-% simple function.  After you have implemented computeNumericalGradient.m,
-% run the following: 
-checkNumericalGradient();
-
-% Now we can use it to check your cost function and derivative calculations
-% for the sparse autoencoder.  
-numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, ...
-                                                  hiddenSize, lambda, ...
-                                                  sparsityParam, beta, ...
-                                                  patches), theta);
-
-                                              
-% Use this to visually compare the gradients side by side
-disp([numgrad grad]); 
-
-% Compare numerically computed gradients with the ones obtained from backpropagation
-diff = norm(numgrad-grad)/norm(numgrad+grad);
-disp(diff); % Should be small. In our implementation, these values are
-            % usually less than 1e-9.
-
-            % When you got this working, Congratulations!!! 
-
-%%======================================================================
+% %% STEP 3: Gradient Checking
+% %
+% % Hint: If you are debugging your code, performing gradient checking on smaller models 
+% % and smaller training sets (e.g., using only 10 training examples and 1-2 hidden 
+% % units) may speed things up.
+% 
+% % First, lets make sure your numerical gradient computation is correct for a
+% % simple function.  After you have implemented computeNumericalGradient.m,
+% % run the following: 
+% checkNumericalGradient();
+% 
+% % Now we can use it to check your cost function and derivative calculations
+% % for the sparse autoencoder.  
+% numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, ...
+%                                                   hiddenSize, lambda, ...
+%                                                   sparsityParam, beta, ...
+%                                                   patches), theta);
+% 
+%                                               
+% % Use this to visually compare the gradients side by side
+% disp([numgrad grad]); 
+% 
+% % Compare numerically computed gradients with the ones obtained from backpropagation
+% diff = norm(numgrad-grad)/norm(numgrad+grad);
+% disp(diff); % Should be small. In our implementation, these values are
+%             % usually less than 1e-9.
+% 
+%             % When you got this working, Congratulations!!! 
+% 
+% %%======================================================================
 %% STEP 4: After verifying that your implementation of
 %  sparseAutoencoderCost is correct, You can start training your sparse
 %  autoencoder with minFunc (L-BFGS).
@@ -110,7 +110,7 @@ options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                           % need a function pointer with two outputs: the
                           % function value and the gradient. In our problem,
                           % sparseAutoencoderCost.m satisfies this.
-options.maxIter = 400;	  % Maximum number of iterations of L-BFGS to run 
+options.maxIter = 800;	  % Maximum number of iterations of L-BFGS to run 
 options.display = 'on';
 
 
@@ -122,10 +122,16 @@ options.display = 'on';
 
 %%======================================================================
 %% STEP 5: Visualization 
+l = sqrt(hiddenSize);
+fl = sqrt(visibleSize);
+width = (l-1)*(fl/2) + fl;
+WS1 = reshape(opttheta(1:width*width), width, width);
 
-W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-display_network(W1', 12); 
+%W1 = getweight( WS1, 4, 4, fl, fl );
+%W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
+display_weight(WS1);
+%display_network(W1, 12); 
 
-print -djpeg weights.jpg   % save the visualization to a file 
+%print -djpeg weights.jpg   % save the visualization to a file 
 
 

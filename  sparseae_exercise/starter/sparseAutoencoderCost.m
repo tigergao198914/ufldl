@@ -12,11 +12,17 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 % The input theta is a vector (because minFunc expects the parameters to be a vector). 
 % We first convert theta to the (W1, W2, b1, b2) matrix/vector format, so that this 
 % follows the notation convention of the lecture notes. 
+l = sqrt(hiddenSize);
+fl = sqrt(visibleSize);
+width = (l-1)*(fl/2) + fl;
 
-W1 = reshape(theta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-W2 = reshape(theta(hiddenSize*visibleSize+1:2*hiddenSize*visibleSize), visibleSize, hiddenSize);
-b1 = theta(2*hiddenSize*visibleSize+1:2*hiddenSize*visibleSize+hiddenSize);
-b2 = theta(2*hiddenSize*visibleSize+hiddenSize+1:end);
+WS1 = reshape(theta(1:width*width), width, width);
+
+W1 = getweight( WS1, 4, 4, fl, fl );
+W1 = W1';
+W2 = reshape(theta(width*width+1:width*width+hiddenSize*visibleSize), visibleSize, hiddenSize);
+b1 = theta(width*width+hiddenSize*visibleSize+1:width*width+hiddenSize*visibleSize+hiddenSize);
+b2 = theta(width*width+hiddenSize*visibleSize+hiddenSize+1:end);
 
 % Cost and gradient variables (your code needs to compute these values). 
 % Here, we initialize them to zeros. 
@@ -44,7 +50,6 @@ b2grad = zeros(size(b2));
 
 b1rep = repmat(b1,1,size(data,2));
 b2rep = repmat(b2,1,size(data,2));
-
 hidden1 = sigmoid( W1 * data + b1rep );
 output  = sigmoid( W2 * hidden1 + b2rep );
 
@@ -67,11 +72,13 @@ spasePenalty = beta*sum( sparsityParam * log( sparsityParam./sparse) + (1-sparsi
 weightdecay = 0.5*lambda*( sum(sum( W1.*W1))+sum(sum(W2.*W2)) );
 cost = (0.5*sum(sum((output-data).*(output-data))))/size(data,2) + spasePenalty + weightdecay;
 
+WS1grad = getgradient( W1grad, 4, 4, fl, fl, width,width);
+
 %-------------------------------------------------------------------
 % After computing the cost and gradient, we will convert the gradients back
 % to a vector format (suitable for minFunc).  Specifically, we will unroll
 % your gradient matrices into a vector.
-grad = [W1grad(:) ; W2grad(:) ; b1grad(:) ; b2grad(:)];
+grad = [WS1grad(:) ; W2grad(:) ; b1grad(:) ; b2grad(:)];
 
 % test = [1 2 3 4; 5 6 7 8; 9 10 11 12; 13 14 15 16]
 % weight = getweight( test, 1, 1, 2, 2)
@@ -88,17 +95,7 @@ function sigm = sigmoid(x)
     sigm = 1 ./ (1 + exp(-x));
 end
 
-function weight = getweight( W, padw, padh, fw, fh )
-    wnum = (size(W,1)-fw)/padw+1;
-    hnum = (size(W,2)-fh)/padh+1;
-    weight = zeros(fw*fh, wnum*hnum);
-    for i=1:hnum
-        for j=1:wnum 
-            t = W( 1+padw*(j-1):1+padw*(j-1)+fw-1, 1+padh*(i-1):1+padh*(i-1)+fh-1);
-            weight(:, (i-1)*wnum+j ) = reshape(t, fw*fh, 1 );
-        end
-    end
-end
+
 
 function gradient = getgradient( grad, padw, padh, fw, fh, row, col)
     gradient = zeros(row, col);
@@ -108,7 +105,7 @@ function gradient = getgradient( grad, padw, padh, fw, fh, row, col)
         for j=1:wnum
             startx = 1+padw*(j-1);
             starty = 1+padh*(i-1);
-            t = reshape( grad(:,(i-1)*wnum+j), fw, fh);
+            t = reshape( grad((i-1)*wnum+j,:), fw, fh);
             gradient( startx:startx+fw-1, starty:starty+fh-1 ) = gradient( startx:startx+fw-1, starty:starty+fh-1 )+t;
         end
     end
