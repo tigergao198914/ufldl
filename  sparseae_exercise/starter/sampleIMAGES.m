@@ -1,10 +1,10 @@
-function patches = sampleIMAGES()
+function patches = sampleIMAGES( patchsize )
 % sampleIMAGES
 % Returns 10000 patches for training
 
 load IMAGES;    % load images from disk 
 
-patchsize = 8;  % we'll use 8x8 patches 
+  % we'll use 8x8 patches 
 numpatches = 10000;
 
 % Initialize patches with zeros.  Your code will fill in this matrix--one
@@ -25,9 +25,9 @@ patches = zeros(patchsize*patchsize, numpatches);
 %  Image 1
 for i = 1:10000
    imageIndex = randi([1 6]);
-   startIndex1 = randi([1 504]);
-   startIndex2 = randi([1 504]);
-   patches(:,i) = reshape( IMAGES(startIndex1:startIndex1+7,startIndex2:startIndex2+7,imageIndex), [8*8,1] );
+   startIndex1 = randi([1 512-patchsize]);
+   startIndex2 = randi([1 512-patchsize]);
+   patches(:,i) = reshape( IMAGES(startIndex1:startIndex1+patchsize-1,startIndex2:startIndex2+patchsize-1,imageIndex), [patchsize*patchsize,1] );
 end
 
 patches = normalizeData(patches);

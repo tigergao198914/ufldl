@@ -13,9 +13,10 @@
 %% STEP 0: Here we provide the relevant parameters values that will
 %  allow your sparse autoencoder to get good filters; you do not need to 
 %  change the parameters below.
-
-visibleSize = 8*8;   % number of input units 
-hiddenSize = 100;     % number of hidden units 
+patchsize = 8;
+visibleSize = patchsize*patchsize;   % number of input units 
+pad = 4;
+hiddenSize = 5*5;     % number of hidden units 
 sparsityParam = 0.01;   % desired average activation of the hidden units.
                      % (This was denoted by the Greek alphabet rho, which looks like a lower-case "p",
 		     %  in the lecture notes). 
@@ -28,12 +29,12 @@ beta = 3;            % weight of sparsity penalty term
 %  After implementing sampleIMAGES, the display_network command should
 %  display a random sample of 200 patches from the dataset
 
-patches = sampleIMAGES;
-display_network(patches(:,randi(size(patches,2),200,1)),8);
+patches = sampleIMAGES(patchsize);
+%display_network(patches(:,randi(size(patches,2),200,1)),8);
 
 
 %  Obtain random parameters theta
-theta = initializeParameters(hiddenSize, visibleSize);
+theta = initializeParameters(hiddenSize, visibleSize,pad, pad);
 
 %%======================================================================
 %% STEP 2: Implement sparseAutoencoderCost
@@ -62,8 +63,7 @@ theta = initializeParameters(hiddenSize, visibleSize);
 %  final submission of the visualized weights, please use parameters we 
 %  gave in Step 0 above.
 
-[cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
-                                     sparsityParam, beta, patches);
+[cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, pad, pad, lambda, sparsityParam, beta, patches);
 
 %%======================================================================
 % %% STEP 3: Gradient Checking
@@ -101,7 +101,7 @@ theta = initializeParameters(hiddenSize, visibleSize);
 %  autoencoder with minFunc (L-BFGS).
 
 %  Randomly initialize the parameters
-theta = initializeParameters(hiddenSize, visibleSize);
+theta = initializeParameters(hiddenSize, visibleSize, pad, pad);
 
 %  Use minFunc to minimize the function
 addpath minFunc/
@@ -110,12 +110,12 @@ options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                           % need a function pointer with two outputs: the
                           % function value and the gradient. In our problem,
                           % sparseAutoencoderCost.m satisfies this.
-options.maxIter = 800;	  % Maximum number of iterations of L-BFGS to run 
+options.maxIter = 400;	  % Maximum number of iterations of L-BFGS to run 
 options.display = 'on';
 
 
 [opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
-                                   visibleSize, hiddenSize, ...
+                                   visibleSize, hiddenSize, pad, pad, ...
                                    lambda, sparsityParam, ...
                                    beta, patches), ...
                               theta, options);
@@ -124,14 +124,15 @@ options.display = 'on';
 %% STEP 5: Visualization 
 l = sqrt(hiddenSize);
 fl = sqrt(visibleSize);
-width = (l-1)*(fl/2) + fl;
+width = (l-1)*pad + fl;
 WS1 = reshape(opttheta(1:width*width), width, width);
 
-%W1 = getweight( WS1, 4, 4, fl, fl );
+W1 = getweight( WS1, pad, pad, fl, fl );
 %W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-display_weight(WS1);
+
+display_weight(WS1,12);
 %display_network(W1, 12); 
 
-%print -djpeg weights.jpg   % save the visualization to a file 
+print -djpeg weights.jpg   % save the visualization to a file 
 
 

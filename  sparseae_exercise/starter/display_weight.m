@@ -24,7 +24,7 @@ end
 if ~exist('opt_colmajor', 'var') || isempty(opt_colmajor)
     opt_colmajor = false;
 end
-
+if opt_graycolor, colormap(gray); end
 % rescale
 A = A - mean(A(:));
 

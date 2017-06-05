@@ -1,9 +1,9 @@
-function theta = initializeParameters(hiddenSize, visibleSize)
+function theta = initializeParameters(hiddenSize, visibleSize, padw, padh)
 
 %% Initialize parameters randomly based on layer sizes.
 l = sqrt(hiddenSize);
 fl = sqrt(visibleSize);
-width = (l-1)*(fl/2) + fl;
+width = (l-1)*padw + fl;
 
 r  = sqrt(6) / sqrt(hiddenSize+visibleSize+1);   % we'll choose weights uniformly from the interval [-r, r]
 W1 = rand(width, width) * 2 * r - r;

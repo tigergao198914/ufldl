@@ -1,5 +1,4 @@
-function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
-                                             lambda, sparsityParam, beta, data)
+function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, padw, padh, lambda, sparsityParam, beta, data)
 
 % visibleSize: the number of input units (probably 64) 
 % hiddenSize: the number of hidden units (probably 25) 
@@ -14,11 +13,11 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 % follows the notation convention of the lecture notes. 
 l = sqrt(hiddenSize);
 fl = sqrt(visibleSize);
-width = (l-1)*(fl/2) + fl;
+width = (l-1)*padw + fl;
 
 WS1 = reshape(theta(1:width*width), width, width);
 
-W1 = getweight( WS1, 4, 4, fl, fl );
+W1 = getweight( WS1, padw, padh, fl, fl );
 W1 = W1';
 W2 = reshape(theta(width*width+1:width*width+hiddenSize*visibleSize), visibleSize, hiddenSize);
 b1 = theta(width*width+hiddenSize*visibleSize+1:width*width+hiddenSize*visibleSize+hiddenSize);
@@ -72,7 +71,7 @@ spasePenalty = beta*sum( sparsityParam * log( sparsityParam./sparse) + (1-sparsi
 weightdecay = 0.5*lambda*( sum(sum( W1.*W1))+sum(sum(W2.*W2)) );
 cost = (0.5*sum(sum((output-data).*(output-data))))/size(data,2) + spasePenalty + weightdecay;
 
-WS1grad = getgradient( W1grad, 4, 4, fl, fl, width,width);
+WS1grad = getgradient( W1grad, padw, padh, fl, fl, width,width);
 
 %-------------------------------------------------------------------
 % After computing the cost and gradient, we will convert the gradients back
