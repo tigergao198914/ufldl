@@ -58,7 +58,7 @@ theta = 0.005 * randn(numClasses * inputSize, 1);
 %%======================================================================
 %% STEP 2: Implement softmaxCost
 %
-%  Implement softmaxCost in softmaxCost.m. 
+%  Implement softmaxCost in softmaxCost.m
 
 [cost, grad] = softmaxCost(theta, numClasses, inputSize, lambda, inputData, labels);
                                      
