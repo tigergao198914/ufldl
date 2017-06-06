@@ -15,8 +15,9 @@ pred = zeros(1, size(data, 2));
 %  Instructions: Compute pred using theta assuming that the labels start 
 %                from 1.
 
-
-
+t=theta*data;
+[~,pred]=max(t,[],1);
+pred=pred';
 
 
 

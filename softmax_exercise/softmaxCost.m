@@ -23,20 +23,13 @@ thetagrad = zeros(numClasses, inputSize);
 %                You need to compute thetagrad and cost.
 %                The groundTruth matrix might come in handy.
 
+
 z = theta*data;
-output = sigmoid(z);
-avgout = output/repmat(sum(output,1),labels, 1);
+h = exp(z)./repmat( sum(exp(z),1), 10, 1);
 
-cost = groundTruth*log(avgout) + (1-groundTruth)*log(1-avgout);
+cost = sum(sum(-groundTruth.*log(h)))/numCases + lambda*sum(sum(theta.*theta));
 
-
-
-
-
-
-
-
-
+thetagrad = -((groundTruth-h)*data')/numCases + 2*lambda*theta;
 
 % ------------------------------------------------------------------
 % Unroll the gradient matrices into a vector for minFunc
